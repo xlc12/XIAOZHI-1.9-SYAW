@@ -22,6 +22,8 @@ private:
     bool pa_inverted_ = false;
     std::mutex data_if_mutex_;
 
+    std::vector<int16_t> stereo_buffer_;  // 用于单通道到双通道转换的缓冲区
+
     void CreateDuplexChannels(gpio_num_t mclk, gpio_num_t bclk, gpio_num_t ws, gpio_num_t dout, gpio_num_t din);
     void UpdateDeviceState();
 

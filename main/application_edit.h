@@ -18,8 +18,6 @@
 #include "device_state_event.h"
 #include "state_machine.h"
 
-#define XY_DEBUG
-
 #define MAIN_EVENT_SCHEDULE (1 << 0)
 #define MAIN_EVENT_SEND_AUDIO (1 << 1)
 #define MAIN_EVENT_WAKE_WORD_DETECTED (1 << 2)
@@ -45,10 +43,10 @@ public:
 
     void Start();
     void MainEventLoop();
-    DeviceState GetDeviceState() const { return device_state_; }
+    DeviceState GetDeviceState() const { return state_machine_.GetCurrentState(); }
     bool IsVoiceDetected() const { return audio_service_.IsVoiceDetected(); }
     void Schedule(std::function<void()> callback);
-    void SetDeviceState(DeviceState state);
+    bool SetDeviceState(DeviceState state);
     void Alert(const char* status, const char* message, const char* emotion = "", const std::string_view& sound = "");
     void DismissAlert();
     void AbortSpeaking(AbortReason reason);
@@ -73,11 +71,15 @@ private:
     std::unique_ptr<Protocol> protocol_;
     EventGroupHandle_t event_group_ = nullptr;
     esp_timer_handle_t clock_timer_handle_ = nullptr;
-    volatile DeviceState device_state_ = kDeviceStateUnknown;
+    StateMachine state_machine_;
     ListeningMode listening_mode_ = kListeningModeAutoStop;
     AecMode aec_mode_ = kAecOff;
     std::string last_error_message_;
     AudioService audio_service_;
+
+    // 音频数据缓冲队列
+    std::queue<std::unique_ptr<AudioStreamPacket>> buffered_audio_packets_;
+    std::mutex audio_buffer_mutex_;
 
     bool has_server_time_ = false;
     bool aborted_ = false;
@@ -89,6 +91,7 @@ private:
     void ShowActivationCode(const std::string& code, const std::string& message);
     void OnClockTimer();
     void SetListeningMode(ListeningMode mode);
+    void ClearAudioBuffer();
 };
 
 #endif // _APPLICATION_H_
