@@ -52,6 +52,7 @@ void Protocol::SendWakeWordDetected(const std::string& wake_word) {
     std::string json = "{\"session_id\":\"" + session_id_ + 
                       "\",\"type\":\"listen\",\"state\":\"detect\",\"text\":\"" + wake_word + "\"}";
     SendText(json);
+    ESP_LOGE(TAG, "1111111Sent wake word detected: %s", json.c_str());
 }
 
 void Protocol::SendStartListening(ListeningMode mode) {
@@ -88,3 +89,20 @@ bool Protocol::IsTimeout() const {
     }
     return timeout;
 }
+
+
+void Protocol::SendSensorData(const std::string& mode, const std::string& state, const std::string& text) {
+    std::string json_str = "{\"session_id\":\"" + session_id_ + 
+                            "\",\"type\":\"sensor\",\"mode\":\"" + mode + "\",\"state\":\"" + state + "\",\"text\":\"" + text + "\"}";
+    SendText(json_str);
+    ESP_LOGE(TAG, "传感器测试Sent sensor data: %s", json_str.c_str());
+}
+
+void Protocol::SendWordDetected(const std::string& wake_word) {
+    std::string json = "{\"session_id\":\"" + session_id_ + 
+                      "\",\"type\":\"listen\",\"state\":\"detect\",\"text\":\"" + wake_word + "\"}";
+    SendText(json);
+    ESP_LOGE(TAG, "传感器测试Sent word detected: %s", json.c_str());
+}
+
+

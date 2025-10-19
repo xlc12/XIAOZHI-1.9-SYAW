@@ -807,3 +807,23 @@ void Application::SetAecMode(AecMode mode) {
 void Application::PlaySound(const std::string_view& sound) {
     audio_service_.PlaySound(sound);
 }
+
+void Application::SendSensorData(const std::string& mode, const std::string& state, const std::string& text) {
+    if (!protocol_) {
+        ESP_LOGE(TAG, "Protocol not initialized");
+        return;
+    }
+    
+    protocol_->SendSensorData(mode, state, text);
+    ESP_LOGI(TAG, "66666666666666  7777777777777777777SendSensorData");
+}
+
+void Application::SendWordDetected(const std::string& wake_word) {
+    if (!protocol_) {
+        ESP_LOGE(TAG, "Protocol not initialized");
+        return;
+    }
+    
+    protocol_->SendWordDetected(wake_word);
+    ESP_LOGI(TAG, "66666666666666  7777777777777777777SendWordDetected");
+}

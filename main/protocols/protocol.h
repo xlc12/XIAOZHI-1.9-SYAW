@@ -73,6 +73,8 @@ public:
     virtual void SendStopListening();
     virtual void SendAbortSpeaking(AbortReason reason);
     virtual void SendMcpMessage(const std::string& message);
+    virtual void SendSensorData(const std::string& mode, const std::string& state, const std::string& text = "");
+    virtual void SendWordDetected(const std::string& wake_word);
 
 protected:
     std::function<void(const cJSON* root)> on_incoming_json_;
