@@ -184,8 +184,36 @@ private:
     }
 
     void InitializeButtons() {
-        boot_button_.OnClick([this]() {
+        // boot_button_.OnClick([this]() {
  
+        //     auto& app = Application::GetInstance();
+        //     if (GetNetworkType() == NetworkType::WIFI) {
+        //         if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
+        //             // cast to WifiBoard
+        //             auto& wifi_board = static_cast<WifiBoard&>(GetCurrentBoard());
+        //             wifi_board.ResetWifiConfiguration();
+        //         }
+        //     }
+        //     app.ToggleChatState();
+        // });
+
+        // boot_button_.OnLongPress([this]() {
+        //     SwitchNetworkType();
+        // });
+
+        //按下一次唤醒，再按一次则休眠，如果在说话，则打断；
+        // right_button_.OnPressDown([this]() {
+        //     auto& app = Application::GetInstance();
+        //     app.ToggleChatState();
+        //     ESP_LOGI(TAG, "66666666666666  111111111Right button clicked");
+           
+        // });
+
+       //左按键短按按下
+    
+
+        //左按钮。
+        left_button_.OnClick([this]() {
             auto& app = Application::GetInstance();
             if (GetNetworkType() == NetworkType::WIFI) {
                 if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
@@ -195,41 +223,39 @@ private:
                 }
             }
             app.ToggleChatState();
+            ESP_LOGI(TAG, "66666666666666  left_button_  OnPressDown");
+
         });
 
-        boot_button_.OnLongPress([this]() {
+
+
+        #if CONFIG_USE_DEVICE_AEC
+        left_button_.OnDoubleClick([this]() {
+            auto& app = Application::GetInstance();
+            if (app.GetDeviceState() == kDeviceStateIdle) {
+                app.SetAecMode(app.GetAecMode() == kAecOff ? kAecOnDeviceSide : kAecOff);
+                if(app.GetAecMode() == kAecOff )
+                {
+                    app.PlaySound(Lang::Sounds::OGG_POPUP);
+                }else if(app.GetAecMode() == kAecOnDeviceSide )
+                {
+                    app.PlaySound(Lang::Sounds::OGG_POPUP);
+                    //延时
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                    app.PlaySound(Lang::Sounds::OGG_POPUP);
+                }
+            }
+            ESP_LOGI(TAG, "66666666666666  left_button_  OnMultipleClick 3 times");
+        });
+        #endif
+
+        //切换网络模式
+        left_button_.OnMultipleClick([this]() {
+            ESP_LOGI(TAG, "66666666666666  left_button_  OnMultipleClick 7 times");
             SwitchNetworkType();
-        });
-
-        //按下一次唤醒，再按一次则休眠，如果在说话，则打断；
-        right_button_.OnPressDown([this]() {
-            auto& app = Application::GetInstance();
-            app.ToggleChatState();
-            ESP_LOGI(TAG, "66666666666666  111111111Right button clicked");
-           
-        });
-
-       
-
-        //左按钮。
-        left_button_.OnPressDown([this]() {
-            //播放指定音频
-            // auto& app = Application::GetInstance();
-            // std::string wake_word="按下了左按键，请直接回复：您按了左按键。需要严格执行，不可以改";
-            // Application::GetInstance().WakeWordInvoke(wake_word);
-            Application::GetInstance().StartListening();
-            ESP_LOGI(TAG, "66666666666666  222222222 Left button OnPressDown");
             
-            // 发送传感器数据给服务器
-            // app.SendSensorData("touch-hand", "start","这是传感器测试");
-
-        });
-
-        left_button_.OnPressUp([this]() {
-            auto& app = Application::GetInstance();
-            app.StopListening();
-            ESP_LOGI(TAG, "66666666666666  222222222 Left button OnPressUp");
-        });
+           
+        },5);
 
         
         touch_button_.OnPressUp([this]() {
@@ -312,7 +338,6 @@ public:
     right_button_(RIGHT_BUTTON_GPIO),
     left_button_(LEFT_BUTTON_GPIO),
     touch_button_(TOUCH_BUTTON_GPIO)
-    // audio_player(nullptr)
      {
 
         // audio_player = new SimpleOggPlayer();

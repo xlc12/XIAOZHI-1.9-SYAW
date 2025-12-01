@@ -140,7 +140,7 @@ void GsensorAction::GsensorActionTask( ) {
                     gsensor_still_error_count = 0;
                     Gsensor_Last_IS_Still = Gsensor_Is_Still;
                     Gsensor_Is_Still = false;
-                ESP_LOGE(TAG_GSENSOR, "Gsensor444444444 静止误差");
+                // ESP_LOGE(TAG_GSENSOR, "Gsensor444444444 静止误差");
                 } else {
                     gsensor_still_count++;
                     // gsensor_still_error_count++;
@@ -150,7 +150,7 @@ void GsensorAction::GsensorActionTask( ) {
                 gsensor_still_error_count = 0;
                 Gsensor_Last_IS_Still = Gsensor_Is_Still;
                 Gsensor_Is_Still = false;
-                ESP_LOGE(TAG_GSENSOR, "Gsensor4444444444444455555 拿起状态");
+                // ESP_LOGE(TAG_GSENSOR, "Gsensor4444444444444455555 拿起状态");
             }
         }
 
