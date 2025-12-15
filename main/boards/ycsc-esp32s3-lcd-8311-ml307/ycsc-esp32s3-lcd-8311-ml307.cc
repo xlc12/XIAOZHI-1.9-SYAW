@@ -35,6 +35,7 @@
 
 #include "gsensor_action.h"
 
+#include "driver/touch_pad.h"
 
 
 #if defined(LCD_TYPE_ILI9341_SERIAL)
@@ -118,7 +119,7 @@ private:
     Button right_button_;
     Button left_button_;
     
-    Button touch_button_;
+
 
     Display* display_;
     Esp32Camera* camera_;
@@ -135,6 +136,31 @@ private:
     Play_Controller* play_controller = nullptr;
 
     GsensorAction* gsensor_action_;
+
+
+
+    uint32_t touch_value = 0;
+
+
+
+    void touch_init() {
+        touch_pad_init();
+        touch_pad_config(TOUCH_PAD_NUM8); // 配置 GPIO4 为触摸引脚
+        touch_pad_set_fsm_mode(TOUCH_FSM_MODE_TIMER); // 设置 FSM 模式为定时器模式
+        touch_pad_fsm_start();
+        vTaskDelay(40 / portTICK_PERIOD_MS);
+        
+    }
+
+    static void touch_read_task(void* arg) {
+        YcscEsp32s3Lcd8311Ml307* self = static_cast<YcscEsp32s3Lcd8311Ml307*>(arg);
+        while (1) {
+            touch_pad_read_raw_data(TOUCH_PAD_NUM8, &self->touch_value);
+
+            ESP_LOGI(TAG, "Touch pad 4: %lu, ", self->touch_value);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+    }
     
 
 
@@ -159,8 +185,8 @@ private:
     void InitializeI2cBusMpu6050() {
         i2c_master_bus_config_t i2c_bus_config = {
             .i2c_port = I2C_NUM_1,
-            .sda_io_num = GPIO_NUM_6,
-            .scl_io_num = GPIO_NUM_7,
+            .sda_io_num = DA218E_I2C_SDA_PIN,
+            .scl_io_num = DA218E_I2C_SCL_PIN,
             .clk_source = I2C_CLK_SRC_DEFAULT,
             .glitch_ignore_cnt = 7,
             .intr_priority = 0,
@@ -258,15 +284,6 @@ private:
         },5);
 
         
-        touch_button_.OnPressUp([this]() {
-            auto& app = Application::GetInstance();
-            app.SendSensorData("touch-hand", "stop", "The ");
-  
-            vTaskDelay(pdMS_TO_TICKS(50));
-            app.SendSensorData("touch-hand", "start", "");
-            ESP_LOGI(TAG, "66666666666666  333333333Touch button clicked");
-           
-        });
     }
 
     void InitializeLcdDisplay() {
@@ -336,8 +353,7 @@ public:
     DualNetworkBoard(ML307_TX_PIN, ML307_RX_PIN,GPIO_NUM_NC),
     boot_button_(BOOT_BUTTON_GPIO),
     right_button_(RIGHT_BUTTON_GPIO),
-    left_button_(LEFT_BUTTON_GPIO),
-    touch_button_(TOUCH_BUTTON_GPIO)
+    left_button_(LEFT_BUTTON_GPIO)
      {
 
         // audio_player = new SimpleOggPlayer();
@@ -347,11 +363,16 @@ public:
         InitializeButtons();
 
         InitializeI2cBusMpu6050();
-        // da218e_ = new Da218e(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
+        da218e_ = new Da218e(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
 
         gsensor_action_ = new GsensorAction(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
 
-        play_controller = new Play_Controller();
+        // play_controller = new Play_Controller();
+
+
+
+        touch_init();
+        xTaskCreate(touch_read_task, "touch_read_task", 2048, this, 5, NULL);
        
 
 
@@ -373,6 +394,8 @@ public:
         static CircularStrip led(BUILTIN_LED_GPIO, 3);
         return &led;
     }
+
+
 };
 
 DECLARE_BOARD(YcscEsp32s3Lcd8311Ml307);
