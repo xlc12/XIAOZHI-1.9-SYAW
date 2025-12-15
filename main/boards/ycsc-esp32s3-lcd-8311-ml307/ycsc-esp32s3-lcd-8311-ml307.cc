@@ -37,6 +37,8 @@
 
 #include "driver/touch_pad.h"
 
+#include "power_manager.h"
+
 
 #if defined(LCD_TYPE_ILI9341_SERIAL)
 #include "esp_lcd_ili9341.h"
@@ -140,6 +142,14 @@ private:
 
 
     uint32_t touch_value = 0;
+
+    PowerManager* power_manager_;
+
+
+    void InitializePowerManager() {
+        power_manager_ =
+            new PowerManager(POWER_CHARGE_DETECT_PIN, POWER_ADC_UNIT, POWER_ADC_CHANNEL);
+    }
 
 
 
@@ -362,6 +372,7 @@ public:
         InitializeLcdDisplay();
         InitializeButtons();
 
+
         InitializeI2cBusMpu6050();
         da218e_ = new Da218e(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
 
@@ -373,6 +384,8 @@ public:
 
         touch_init();
         xTaskCreate(touch_read_task, "touch_read_task", 2048, this, 5, NULL);
+
+        InitializePowerManager();
        
 
 
@@ -393,6 +406,13 @@ public:
     virtual Led* GetLed() override {
         static CircularStrip led(BUILTIN_LED_GPIO, 3);
         return &led;
+    }
+
+    virtual bool GetBatteryLevel(int& level, bool& charging, bool& discharging) override {
+        charging = power_manager_->IsCharging();
+        discharging = !charging;
+        level = power_manager_->GetBatteryLevel();
+        return true;
     }
 
 
