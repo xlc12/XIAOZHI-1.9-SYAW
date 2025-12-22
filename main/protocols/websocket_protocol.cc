@@ -67,6 +67,7 @@ bool WebsocketProtocol::SendText(const std::string& text) {
         SetError(Lang::Strings::SERVER_ERROR);
         return false;
     }
+    ESP_LOGE(TAG, " Sent text: %s", text.c_str());
 
     return true;
 }
