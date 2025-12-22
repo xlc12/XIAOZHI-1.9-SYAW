@@ -6,6 +6,10 @@
 #define ML307_RX_PIN GPIO_NUM_11
 #define ML307_TX_PIN GPIO_NUM_10
 
+// 版本选择
+// #define CONFIG_USE_ESP_TOUCH 1    //V1V2使用ESP触摸:1；V3使用GPIO触摸按钮0
+// #define CONFIG_USE_BTN_IO4 0      //V1使用IO4作为左按钮:1,V2v3使用15:0
+
 // 电池
 #define POWER_CHARGE_DETECT_PIN GPIO_NUM_5
 #define POWER_ADC_UNIT ADC_UNIT_1
@@ -34,7 +38,13 @@
 #define BOOT_BUTTON_GPIO   GPIO_NUM_0
 
 #define RIGHT_BUTTON_GPIO  GPIO_NUM_11
-#define LEFT_BUTTON_GPIO   GPIO_NUM_15
+
+#ifdef CONFIG_USE_BTN_IO4 //V1使用IO4作为左按钮
+#define LEFT_BUTTON_GPIO   GPIO_NUM_4  //v1为4，V2v3为15
+#else
+#define LEFT_BUTTON_GPIO   GPIO_NUM_15  
+#endif
+
 #define TOUCH_BUTTON_GPIO     GPIO_NUM_8
 
 // #define DISPLAY_WIDTH   240

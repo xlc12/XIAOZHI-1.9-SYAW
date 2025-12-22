@@ -79,7 +79,7 @@ static const gc9a01_lcd_init_cmd_t gc9107_lcd_init_cmds[] = {
     {0xf4, (uint8_t[]){0x00, 0x00, 0xFF}, 3, 0},
     {0xba, (uint8_t[]){0xFF, 0xFF}, 2, 0},
 };
-#endif
+#endif // LCD_TYPE_GC9A01_SERIAL
 
 #define TAG "YcscEsp32s3Lcd8311Ml307"
 
@@ -120,7 +120,7 @@ private:
     Button boot_button_;
     Button right_button_;
     Button left_button_;
-    
+    Button touch_button_;
 
 
     Display* display_;
@@ -145,6 +145,15 @@ private:
 
     PowerManager* power_manager_;
 
+    uint32_t is_long_press= 0;
+
+    uint32_t is_enable_aec = 0;
+
+
+    uint32_t last_touch_time_ = 0;
+    static const uint32_t TOUCH_DEBOUNCE_INTERVAL_MS = 7000; // 设置防抖间隔为1秒
+
+
 
     void InitializePowerManager() {
         power_manager_ =
@@ -163,12 +172,36 @@ private:
     }
 
     static void touch_read_task(void* arg) {
+        int aaa = 0;
+        int is_enable_touch = 0;
         YcscEsp32s3Lcd8311Ml307* self = static_cast<YcscEsp32s3Lcd8311Ml307*>(arg);
+        auto& app = Application::GetInstance();
         while (1) {
             touch_pad_read_raw_data(TOUCH_PAD_NUM8, &self->touch_value);
 
-            ESP_LOGI(TAG, "Touch pad 4: %lu, ", self->touch_value);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            
+            if (self->touch_value > 35000 && is_enable_touch == 0) 
+            {
+                /* code */
+                is_enable_touch = 1;
+                app.SendSensorData("touch-hand", "stop", "The ");
+    
+                vTaskDelay(pdMS_TO_TICKS(50));
+                app.SendSensorData("touch-hand", "start", "");
+                ESP_LOGI(TAG, "Touch pad 8666666: %lu, ", self->touch_value);
+            }
+
+            is_enable_touch++;
+            if(is_enable_touch > 60) {
+                is_enable_touch = 0;
+            }
+
+            aaa++;
+            if(aaa > 30) {
+                aaa = 0;
+                ESP_LOGI(TAG, "Touch pad 8: %lu, ", self->touch_value);
+            }
+            vTaskDelay(100 / portTICK_PERIOD_MS);
         }
     }
     
@@ -245,7 +278,29 @@ private:
            
         // });
 
-       //左按键短按按下
+
+        
+        #if !CONFIG_USE_ESP_TOUCH //V2使用ESP触摸，V3使用GPIO触摸按钮
+    
+       //触摸
+       touch_button_.OnPressDown([this]() {
+            auto& app = Application::GetInstance();
+            uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            if (current_time - last_touch_time_ < TOUCH_DEBOUNCE_INTERVAL_MS) {
+                return; // 如果距离上次触发时间小于间隔，直接返回
+            }
+            last_touch_time_ = current_time;
+            //发送传感器消息-begin
+            app.SendSensorData("touch-hand", "stop", "The ");
+    
+            vTaskDelay(pdMS_TO_TICKS(100));
+            app.SendSensorData("touch-hand", "start", "");
+            //发送传感器消息-end
+
+            ESP_LOGI(TAG, "aaaaaaaaaaaa11111111111  touch_button_  OnPressUp");
+        });
+
+        #endif
     
 
         //左按钮。
@@ -258,26 +313,88 @@ private:
                     wifi_board.ResetWifiConfiguration();
                 }
             }
-            app.ToggleChatState();
-            ESP_LOGI(TAG, "66666666666666  left_button_  OnPressDown");
+            if(is_long_press == 0){
+                app.ToggleChatState();
+                ESP_LOGI(TAG, "1111111aaaaaaa  left_button_  OnClick");
+            } else {
+                is_long_press = 0;
+                app.StopListening();
+                // app.PlaySound(Lang::Sounds::OGG_POPUP);
+                ESP_LOGI(TAG, "222222222aaaaaa  left_button_  OnClick");
+            }
+            
+            ESP_LOGI(TAG, " 333333333aaaaa left_button_  OnClick");
 
         });
 
 
+        left_button_.OnDoubleClick([this]() {
+            auto& app = Application::GetInstance();
+            if (app.GetDeviceState() == kDeviceStateSpeaking) {
+                // 如果当前状态是Speaking，停止Speaking
+                app.ToggleChatState();
+                vTaskDelay(pdMS_TO_TICKS(100));
+                ESP_LOGI(TAG, "111111  kDeviceStateSpeaking  OnDoubleClick - StopSpeaking");
+      
+            } 
+            if (app.GetDeviceState() == kDeviceStateListening) {
+                app.ToggleChatState();
+                vTaskDelay(pdMS_TO_TICKS(100));
+                ESP_LOGI(TAG, "111111  kDeviceStateListening  OnDoubleClick - StopListening");
+            }
+            //延时100ms
+            vTaskDelay(pdMS_TO_TICKS(100));
+            
+            is_long_press = 1;
+            app.StartListening();
+            vTaskDelay(pdMS_TO_TICKS(100));
+            // app.PlaySound(Lang::Sounds::OGG_POPUP);
+            // if(app.GetAecMode() == kAecOff) {
+            //     // app.StartListening();
+            //     ESP_LOGI(TAG, "111111111111111111111111111111111  left_button_  StartListening");
+            // }
+            ESP_LOGI(TAG, "22222222222222222222  left_button_  OnDoubleClick");
+
+            
+            
+            
+        });
+
+        // left_button_.OnPressUp([this]() {
+        //     auto& app = Application::GetInstance();
+        //     if(is_long_press == 1) {
+        //         is_long_press = 0;
+        //         app.StopListening();
+        //         ESP_LOGI(TAG, "333333333  left_button_  StopListening");
+                
+        //     } else {
+        //         // ESP_LOGI(TAG, "4444444  left_button_  ToggleChatState");
+        //         // app.ToggleChatState();
+        //     }
+
+        //     ESP_LOGI(TAG, "5555555555  left_button_  OnPressUp");
+            
+        // });
+
+
 
         #if CONFIG_USE_DEVICE_AEC
-        left_button_.OnDoubleClick([this]() {
+        left_button_.OnLongPress([this]() {
             auto& app = Application::GetInstance();
             if (app.GetDeviceState() == kDeviceStateIdle) {
                 app.SetAecMode(app.GetAecMode() == kAecOff ? kAecOnDeviceSide : kAecOff);
                 if(app.GetAecMode() == kAecOff )
                 {
+        
+                    app.PlaySound(Lang::Sounds::OGG_POPUP);
                     app.PlaySound(Lang::Sounds::OGG_POPUP);
                 }else if(app.GetAecMode() == kAecOnDeviceSide )
                 {
+        
                     app.PlaySound(Lang::Sounds::OGG_POPUP);
                     //延时
                     vTaskDelay(pdMS_TO_TICKS(100));
+                    app.PlaySound(Lang::Sounds::OGG_POPUP);
                     app.PlaySound(Lang::Sounds::OGG_POPUP);
                 }
             }
@@ -363,7 +480,8 @@ public:
     DualNetworkBoard(ML307_TX_PIN, ML307_RX_PIN,GPIO_NUM_NC),
     boot_button_(BOOT_BUTTON_GPIO),
     right_button_(RIGHT_BUTTON_GPIO),
-    left_button_(LEFT_BUTTON_GPIO)
+    left_button_(LEFT_BUTTON_GPIO),
+    touch_button_(TOUCH_BUTTON_GPIO)
      {
 
         // audio_player = new SimpleOggPlayer();
@@ -380,10 +498,12 @@ public:
 
         // play_controller = new Play_Controller();
 
-
-
+        #if CONFIG_USE_ESP_TOUCH //V2使用ESP触摸
+    
         touch_init();
         xTaskCreate(touch_read_task, "touch_read_task", 2048, this, 5, NULL);
+
+        #endif
 
         InitializePowerManager();
        
