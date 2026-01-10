@@ -286,7 +286,7 @@ private:
        touch_button_.OnPressDown([this]() {
             auto& app = Application::GetInstance();
             uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-            if (current_time - last_touch_time_ < TOUCH_DEBOUNCE_INTERVAL_MS) {
+            if (current_time - last_touch_time_ < COOLING_TIME_MS) {
                 return; // 如果距离上次触发时间小于间隔，直接返回
             }
             last_touch_time_ = current_time;

@@ -13,6 +13,9 @@
 
 #define TAG_GSENSOR "GsensorAction" 
 
+//冷却时间
+#define COOLING_TIME_MS 15000
+
 //读取数据频率，单位：毫秒
 #define GSENSOR_READ_FREQ_MS 100
 
@@ -83,6 +86,11 @@ class GsensorAction {
         bool Gsensor_Is_Throw;
         //判断抛掷状态计数
         int gsensor_throw_count = 0;
+
+        //上一次触发摇晃事件时间
+        uint32_t last_shake_time_ = 0;
+        //上一次触发抛掷事件时间
+        uint32_t last_throw_time_ = 0;
 
 
         //状态枚举类型

@@ -10,6 +10,9 @@
 // #define CONFIG_USE_ESP_TOUCH 1    //V1V2使用ESP触摸:1；V3使用GPIO触摸按钮0
 // #define CONFIG_USE_BTN_IO4 0      //V1使用IO4作为左按钮:1,V2v3使用15:0
 
+//冷却时间，在gsensor_action.h也需要同步改
+#define COOLING_TIME_MS 15000
+
 // 电池
 #define POWER_CHARGE_DETECT_PIN GPIO_NUM_5
 #define POWER_ADC_UNIT ADC_UNIT_1

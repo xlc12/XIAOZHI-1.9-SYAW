@@ -25,19 +25,25 @@ void GsensorAction::SetGsensorState(GsensorState state) {
         return;
     }
     gsensor_state_ = state;
+    uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
     switch (state)
     {
 
         case GSENSOR_STATE_STILL:
-            ESP_LOGE(TAG_GSENSOR, "|||||AAAAAAAAAADSSAAAAAAAAAAA 状态变化：静止");
+            // ESP_LOGE(TAG_GSENSOR, "|||||AAAAAAAAAADSSAAAAAAAAAAA 状态变化：静止");
             break;
 
         case GSENSOR_STATE_PICKUP:
-            ESP_LOGE(TAG_GSENSOR, "|||||AAAAAAAAAADSSAAAAAAAAAAA 状态变化：静止 -> 拿起");
+            // ESP_LOGE(TAG_GSENSOR, "|||||AAAAAAAAAADSSAAAAAAAAAAA 状态变化：静止 -> 拿起");
             break;
 
         case GSENSOR_STATE_SHAKE:
+            if (current_time - last_shake_time_ < COOLING_TIME_MS) {
+                ESP_LOGE(TAG_GSENSOR, "|||||AAAAAA 摇晃 过于频繁忽略");
+                    return; // 如果距离上次触发时间小于间隔，直接返回
+            }
+            last_shake_time_ = current_time;
             ESP_LOGE(TAG_GSENSOR, "|||||AAAAAAAAAADSSAAAAA6666666AAAAAA 状态变化：摇晃摇晃摇晃摇晃 ");
             // 发送传感器数据touch-hand   shake-body
             app.SendSensorData("shake-body", "stop", "The device is being shaken.");
@@ -47,6 +53,11 @@ void GsensorAction::SetGsensorState(GsensorState state) {
             break;
 
         case GSENSOR_STATE_THROW:
+            if (current_time - last_throw_time_ < COOLING_TIME_MS) {
+                ESP_LOGE(TAG_GSENSOR, "|||||AAAAAA 抛掷 过于频繁忽略");
+                    return; // 如果距离上次触发时间小于间隔，直接返回
+            }
+            last_throw_time_ = current_time;
             ESP_LOGE(TAG_GSENSOR, "|||||AAAAAAAAAADSSAAAAAAAAAAA 状态变化：抛掷 -> 静止");
             app.SendSensorData("throw-it-up", "stop", "");
   

@@ -403,7 +403,7 @@ void Application::Start() {
     protocol_->OnIncomingAudio([this](std::unique_ptr<AudioStreamPacket> packet) {
         if (device_state_ == kDeviceStateSpeaking) {
             audio_service_.PushPacketToDecodeQueue(std::move(packet));
-#if 0
+#if 1
         } else if (device_state_ == kDeviceStateListening) {
             // When in listening state but receiving audio response, transition to speaking state
             // This handles the case where server response arrives while still in listening state
