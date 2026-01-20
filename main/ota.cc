@@ -56,6 +56,8 @@ std::unique_ptr<Http> Ota::SetupHttp() {
     auto network = board.GetNetwork();
     auto http = network->CreateHttp(0);
     auto user_agent = std::string(BOARD_NAME "/") + app_desc->version;
+    //日志打印user_agent
+    ESP_LOGI(TAG, "设备型号与版本号Setup HTTP, User-Agent: %s", user_agent.c_str());
     http->SetHeader("Activation-Version", has_serial_number_ ? "2" : "1");
     http->SetHeader("Device-Id", SystemInfo::GetMacAddress().c_str());
     http->SetHeader("Client-Id", board.GetUuid());
