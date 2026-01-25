@@ -48,13 +48,13 @@ void DualNetworkBoard::SwitchNetworkType() {
     if (network_type_ == NetworkType::WIFI) {    
         SaveNetworkTypeToSettings(NetworkType::ML307);
         display->ShowNotification(Lang::Strings::SWITCH_TO_4G_NETWORK);
-        app.PlaySound(Lang::Sounds::OGG_0);
+        app.PlaySound(Lang::Sounds::OGG_1_4_4GMOSHI);
     } else {
         SaveNetworkTypeToSettings(NetworkType::WIFI);
         display->ShowNotification(Lang::Strings::SWITCH_TO_WIFI_NETWORK);
-        app.PlaySound(Lang::Sounds::OGG_1);
+        app.PlaySound(Lang::Sounds::OGG_1_5_WIFIMOSHI);
     }
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(2000));
     
     app.Reboot();
 }

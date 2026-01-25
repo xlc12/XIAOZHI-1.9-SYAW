@@ -13,8 +13,18 @@
 //冷却时间，在gsensor_action.h也需要同步改
 #define COOLING_TIME_MS 15000
 
+
+
+
+
+
 // 电池
-#define POWER_CHARGE_DETECT_PIN GPIO_NUM_5
+#define LOW_BATTERY_ALARM_LEVEL 20      //低电量报警阈值
+#define LOW_BATTERY_ALARM_INTERVAL_MS 20//低电量报警间隔时间，单位秒
+#define CHARGING_COMPLETE_ALARM_INTERVAL_MS 10 //充电完成报警间隔时间，单位秒
+
+#define POWER_CHARGE_DETECT_PIN GPIO_NUM_48
+#define POWER_CHARGE_COMPLETE_PIN GPIO_NUM_47
 #define POWER_ADC_UNIT ADC_UNIT_1
 #define POWER_ADC_CHANNEL ADC_CHANNEL_4
 

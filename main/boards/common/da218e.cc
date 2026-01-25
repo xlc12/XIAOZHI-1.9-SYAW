@@ -95,7 +95,7 @@ float Da218e::ReadData() {
 
 
     float acc = sqrt(ax_raw_f * ax_raw_f + ay_raw_f * ay_raw_f + az_raw_f * az_raw_f);
-    ESP_LOGI(TAG_Da218e, "DA218E 合成加速度aaaaaaa: %.2f g", acc);
+    // ESP_LOGI(TAG_Da218e, "DA218E 合成加速度aaaaaaa: %.2f g", acc);
     
     return acc; ;
     

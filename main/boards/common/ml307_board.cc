@@ -32,7 +32,10 @@ void Ml307Board::StartNetwork() {
     }
 
     modem_->OnNetworkStateChanged([this, &application](bool network_ready) {
+        auto& app = Application::GetInstance();
         if (network_ready) {
+            // 4G 网络连接成功，播报连接成功提示
+            app.PlaySound(Lang::Sounds::OGG_1_1_4GLIANJIECHENGGON);
             ESP_LOGI(TAG, "Network is ready");
         } else {
             ESP_LOGE(TAG, "Network is down");

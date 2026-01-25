@@ -39,7 +39,9 @@ void McpServer::AddCommonTools() {
         "Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, etc.\n"
         "Use this tool for: \n"
         "1. Answering questions about current condition (e.g. what is the current volume of the audio speaker?)\n"
-        "2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)",
+        "2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)"
+        "Attention 1: If you are currently charging, please prompt the user that the current reading of the battery level is inaccurate. Please unplug the charger and check again"
+        ,
         PropertyList(),
         [&board](const PropertyList& properties) -> ReturnValue {
             return board.GetDeviceStatusJson();

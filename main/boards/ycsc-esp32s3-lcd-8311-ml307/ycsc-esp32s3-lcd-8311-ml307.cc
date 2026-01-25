@@ -157,7 +157,7 @@ private:
 
     void InitializePowerManager() {
         power_manager_ =
-            new PowerManager(POWER_CHARGE_DETECT_PIN, POWER_ADC_UNIT, POWER_ADC_CHANNEL);
+            new PowerManager(POWER_CHARGE_DETECT_PIN, POWER_CHARGE_COMPLETE_PIN, POWER_ADC_UNIT, POWER_ADC_CHANNEL);
     }
 
 
@@ -284,20 +284,21 @@ private:
     
        //触摸
        touch_button_.OnPressDown([this]() {
+        ESP_LOGI(TAG, "aaaaaaaaaaaa11111111111  touch_button_  OnPressUp");
             auto& app = Application::GetInstance();
             uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
             if (current_time - last_touch_time_ < COOLING_TIME_MS) {
                 return; // 如果距离上次触发时间小于间隔，直接返回
             }
             last_touch_time_ = current_time;
-            //发送传感器消息-begin
-            app.SendSensorData("touch-hand", "stop", "The ");
+            // //发送传感器消息-begin
+            // app.SendSensorData("touch-hand", "stop", "The ");
     
-            vTaskDelay(pdMS_TO_TICKS(100));
-            app.SendSensorData("touch-hand", "start", "");
+            // vTaskDelay(pdMS_TO_TICKS(100));
+            // app.SendSensorData("touch-hand", "start", "");
             //发送传感器消息-end
 
-            ESP_LOGI(TAG, "aaaaaaaaaaaa11111111111  touch_button_  OnPressUp");
+            
         });
 
         #endif
