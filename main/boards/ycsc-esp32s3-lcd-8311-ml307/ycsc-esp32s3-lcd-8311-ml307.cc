@@ -39,47 +39,49 @@
 
 #include "power_manager.h"
 
+#include <esp_lcd_gc9a01.h>
+
 
 #if defined(LCD_TYPE_ILI9341_SERIAL)
 #include "esp_lcd_ili9341.h"
 #endif
 
-#if defined(LCD_TYPE_GC9A01_SERIAL)
-#include "esp_lcd_gc9a01.h"
-static const gc9a01_lcd_init_cmd_t gc9107_lcd_init_cmds[] = {
-    //  {cmd, { data }, data_size, delay_ms}
-    {0xfe, (uint8_t[]){0x00}, 0, 0},
-    {0xef, (uint8_t[]){0x00}, 0, 0},
-    {0xb0, (uint8_t[]){0xc0}, 1, 0},
-    {0xb1, (uint8_t[]){0x80}, 1, 0},
-    {0xb2, (uint8_t[]){0x27}, 1, 0},
-    {0xb3, (uint8_t[]){0x13}, 1, 0},
-    {0xb6, (uint8_t[]){0x19}, 1, 0},
-    {0xb7, (uint8_t[]){0x05}, 1, 0},
-    {0xac, (uint8_t[]){0xc8}, 1, 0},
-    {0xab, (uint8_t[]){0x0f}, 1, 0},
-    {0x3a, (uint8_t[]){0x05}, 1, 0},
-    {0xb4, (uint8_t[]){0x04}, 1, 0},
-    {0xa8, (uint8_t[]){0x08}, 1, 0},
-    {0xb8, (uint8_t[]){0x08}, 1, 0},
-    {0xea, (uint8_t[]){0x02}, 1, 0},
-    {0xe8, (uint8_t[]){0x2A}, 1, 0},
-    {0xe9, (uint8_t[]){0x47}, 1, 0},
-    {0xe7, (uint8_t[]){0x5f}, 1, 0},
-    {0xc6, (uint8_t[]){0x21}, 1, 0},
-    {0xc7, (uint8_t[]){0x15}, 1, 0},
-    {0xf0,
-    (uint8_t[]){0x1D, 0x38, 0x09, 0x4D, 0x92, 0x2F, 0x35, 0x52, 0x1E, 0x0C,
-                0x04, 0x12, 0x14, 0x1f},
-    14, 0},
-    {0xf1,
-    (uint8_t[]){0x16, 0x40, 0x1C, 0x54, 0xA9, 0x2D, 0x2E, 0x56, 0x10, 0x0D,
-                0x0C, 0x1A, 0x14, 0x1E},
-    14, 0},
-    {0xf4, (uint8_t[]){0x00, 0x00, 0xFF}, 3, 0},
-    {0xba, (uint8_t[]){0xFF, 0xFF}, 2, 0},
-};
-#endif // LCD_TYPE_GC9A01_SERIAL
+// #if defined(LCD_TYPE_GC9A01_SERIAL)
+// #include "esp_lcd_gc9a01.h"
+// static const gc9a01_lcd_init_cmd_t gc9107_lcd_init_cmds[] = {
+//     //  {cmd, { data }, data_size, delay_ms}
+//     {0xfe, (uint8_t[]){0x00}, 0, 0},
+//     {0xef, (uint8_t[]){0x00}, 0, 0},
+//     {0xb0, (uint8_t[]){0xc0}, 1, 0},
+//     {0xb1, (uint8_t[]){0x80}, 1, 0},
+//     {0xb2, (uint8_t[]){0x27}, 1, 0},
+//     {0xb3, (uint8_t[]){0x13}, 1, 0},
+//     {0xb6, (uint8_t[]){0x19}, 1, 0},
+//     {0xb7, (uint8_t[]){0x05}, 1, 0},
+//     {0xac, (uint8_t[]){0xc8}, 1, 0},
+//     {0xab, (uint8_t[]){0x0f}, 1, 0},
+//     {0x3a, (uint8_t[]){0x05}, 1, 0},
+//     {0xb4, (uint8_t[]){0x04}, 1, 0},
+//     {0xa8, (uint8_t[]){0x08}, 1, 0},
+//     {0xb8, (uint8_t[]){0x08}, 1, 0},
+//     {0xea, (uint8_t[]){0x02}, 1, 0},
+//     {0xe8, (uint8_t[]){0x2A}, 1, 0},
+//     {0xe9, (uint8_t[]){0x47}, 1, 0},
+//     {0xe7, (uint8_t[]){0x5f}, 1, 0},
+//     {0xc6, (uint8_t[]){0x21}, 1, 0},
+//     {0xc7, (uint8_t[]){0x15}, 1, 0},
+//     {0xf0,
+//     (uint8_t[]){0x1D, 0x38, 0x09, 0x4D, 0x92, 0x2F, 0x35, 0x52, 0x1E, 0x0C,
+//                 0x04, 0x12, 0x14, 0x1f},
+//     14, 0},
+//     {0xf1,
+//     (uint8_t[]){0x16, 0x40, 0x1C, 0x54, 0xA9, 0x2D, 0x2E, 0x56, 0x10, 0x0D,
+//                 0x0C, 0x1A, 0x14, 0x1E},
+//     14, 0},
+//     {0xf4, (uint8_t[]){0x00, 0x00, 0xFF}, 3, 0},
+//     {0xba, (uint8_t[]){0xFF, 0xFF}, 2, 0},
+// };
+// #endif // LCD_TYPE_GC9A01_SERIAL
 
 #define TAG "YcscEsp32s3Lcd8311Ml307"
 
@@ -329,37 +331,36 @@ private:
         });
 
 
-        left_button_.OnDoubleClick([this]() {
-            auto& app = Application::GetInstance();
-            if (app.GetDeviceState() == kDeviceStateSpeaking) {
-                // 如果当前状态是Speaking，停止Speaking
-                app.ToggleChatState();
-                vTaskDelay(pdMS_TO_TICKS(100));
-                ESP_LOGI(TAG, "111111  kDeviceStateSpeaking  OnDoubleClick - StopSpeaking");
-      
-            } 
-            if (app.GetDeviceState() == kDeviceStateListening) {
-                app.ToggleChatState();
-                vTaskDelay(pdMS_TO_TICKS(100));
-                ESP_LOGI(TAG, "111111  kDeviceStateListening  OnDoubleClick - StopListening");
-            }
-            //延时100ms
-            vTaskDelay(pdMS_TO_TICKS(100));
+        // left_button_.OnDoubleClick([this]() {
+        //     auto& app = Application::GetInstance();
+        //     if (app.GetDeviceState() == kDeviceStateSpeaking) {
+        //         // 如果当前状态是Speaking，停止Speaking
+        //         app.ToggleChatState();
+        //         vTaskDelay(pdMS_TO_TICKS(100));
+        //         ESP_LOGI(TAG, "111111  kDeviceStateSpeaking  OnDoubleClick - StopSpeaking");
+        //     } 
+        //     if (app.GetDeviceState() == kDeviceStateListening) {
+        //         app.ToggleChatState();
+        //         vTaskDelay(pdMS_TO_TICKS(100));
+        //         ESP_LOGI(TAG, "111111  kDeviceStateListening  OnDoubleClick - StopListening");
+        //     }
+        //     //延时100ms
+        //     vTaskDelay(pdMS_TO_TICKS(100));
             
-            is_long_press = 1;
-            app.StartListening();
-            vTaskDelay(pdMS_TO_TICKS(100));
-            // app.PlaySound(Lang::Sounds::OGG_POPUP);
-            // if(app.GetAecMode() == kAecOff) {
-            //     // app.StartListening();
-            //     ESP_LOGI(TAG, "111111111111111111111111111111111  left_button_  StartListening");
-            // }
-            ESP_LOGI(TAG, "22222222222222222222  left_button_  OnDoubleClick");
+        //     is_long_press = 1;
+        //     app.StartListening();
+        //     vTaskDelay(pdMS_TO_TICKS(100));
+        //     // app.PlaySound(Lang::Sounds::OGG_POPUP);
+        //     // if(app.GetAecMode() == kAecOff) {
+        //     //     // app.StartListening();
+        //     //     ESP_LOGI(TAG, "111111111111111111111111111111111  left_button_  StartListening");
+        //     // }
+        //     ESP_LOGI(TAG, "22222222222222222222  left_button_  OnDoubleClick");
 
             
             
             
-        });
+        // });
 
         // left_button_.OnPressUp([this]() {
         //     auto& app = Application::GetInstance();
@@ -380,36 +381,35 @@ private:
 
 
         #if CONFIG_USE_DEVICE_AEC
-        left_button_.OnLongPress([this]() {
-            auto& app = Application::GetInstance();
-            if (app.GetDeviceState() == kDeviceStateIdle) {
-                app.SetAecMode(app.GetAecMode() == kAecOff ? kAecOnDeviceSide : kAecOff);
-                if(app.GetAecMode() == kAecOff )
-                {
+        // left_button_.OnLongPress([this]() {
+        //     auto& app = Application::GetInstance();
+        //     if (app.GetDeviceState() == kDeviceStateIdle) {
+        //         app.SetAecMode(app.GetAecMode() == kAecOff ? kAecOnDeviceSide : kAecOff);
+        //         if(app.GetAecMode() == kAecOff )
+        //         {
         
-                    app.PlaySound(Lang::Sounds::OGG_POPUP);
-                    app.PlaySound(Lang::Sounds::OGG_POPUP);
-                }else if(app.GetAecMode() == kAecOnDeviceSide )
-                {
+        //             app.PlaySound(Lang::Sounds::OGG_POPUP);
+        //             app.PlaySound(Lang::Sounds::OGG_POPUP);
+        //         }else if(app.GetAecMode() == kAecOnDeviceSide )
+        //         {
         
-                    app.PlaySound(Lang::Sounds::OGG_POPUP);
-                    //延时
-                    vTaskDelay(pdMS_TO_TICKS(100));
-                    app.PlaySound(Lang::Sounds::OGG_POPUP);
-                    app.PlaySound(Lang::Sounds::OGG_POPUP);
-                }
-            }
-            ESP_LOGI(TAG, "66666666666666  left_button_  OnMultipleClick 3 times");
-        });
+        //             app.PlaySound(Lang::Sounds::OGG_POPUP);
+        //             //延时
+        //             vTaskDelay(pdMS_TO_TICKS(100));
+        //             app.PlaySound(Lang::Sounds::OGG_POPUP);
+        //             app.PlaySound(Lang::Sounds::OGG_POPUP);
+        //         }
+        //     }
+        //     ESP_LOGI(TAG, "66666666666666  left_button_  OnMultipleClick 3 times");
+        // });
         #endif
 
         //切换网络模式
-        left_button_.OnMultipleClick([this]() {
+        left_button_.OnLongPress([this]() {
             ESP_LOGI(TAG, "66666666666666  left_button_  OnMultipleClick 7 times");
             SwitchNetworkType();
-            
            
-        },5);
+        });
 
         
     }
@@ -444,7 +444,11 @@ private:
         gc9a01_vendor_config_t gc9107_vendor_config = {
             .init_cmds = gc9107_lcd_init_cmds,
             .init_cmds_size = sizeof(gc9107_lcd_init_cmds) / sizeof(gc9a01_lcd_init_cmd_t),
-        };        
+        };  
+#elif defined(LCD_TYPE_GC9A01_160X160_SERIAL)
+        panel_config.rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB;
+        panel_config.bits_per_pixel = 16;
+        ESP_ERROR_CHECK(esp_lcd_new_panel_gc9a01(panel_io, &panel_config, &panel));      
 #else
         ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(panel_io, &panel_config, &panel));
 #endif
@@ -479,16 +483,21 @@ private:
 public:
     YcscEsp32s3Lcd8311Ml307() : 
     DualNetworkBoard(ML307_TX_PIN, ML307_RX_PIN,GPIO_NUM_NC),
-    boot_button_(BOOT_BUTTON_GPIO),
-    right_button_(RIGHT_BUTTON_GPIO),
-    left_button_(LEFT_BUTTON_GPIO),
-    touch_button_(TOUCH_BUTTON_GPIO)
+        boot_button_(BOOT_BUTTON_GPIO),
+        right_button_(RIGHT_BUTTON_GPIO),
+        left_button_(LEFT_BUTTON_GPIO),
+        touch_button_(TOUCH_BUTTON_GPIO)
      {
 
         // audio_player = new SimpleOggPlayer();
         InitializeI2c();
         InitializeSpi();
         InitializeLcdDisplay();
+
+        if (DISPLAY_BACKLIGHT_PIN != GPIO_NUM_NC) {
+            GetBacklight()->RestoreBrightness();
+        }
+        
         InitializeButtons();
 
 
@@ -534,6 +543,14 @@ public:
         discharging = !charging;
         level = power_manager_->GetBatteryLevel();
         return true;
+    }
+
+    virtual Backlight* GetBacklight() override {
+        if (DISPLAY_BACKLIGHT_PIN != GPIO_NUM_NC) {
+            static PwmBacklight backlight(DISPLAY_BACKLIGHT_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
+            return &backlight;
+        }
+        return nullptr;
     }
 
 
