@@ -613,6 +613,7 @@ void Application::MainEventLoop() {
 }
 
 void Application::OnWakeWordDetected() {
+    ESP_LOGI(TAG, "唤醒词触发66666666666666666");
     if (!protocol_) {
         return;
     }
