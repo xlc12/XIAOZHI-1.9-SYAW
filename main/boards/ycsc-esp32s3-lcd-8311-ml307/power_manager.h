@@ -59,6 +59,7 @@ private:
         auto& app = Application::GetInstance();
         static uint32_t last_low_battery_time_ = 0; // 电池电量过低的最后时间点
         static uint32_t last_charging_complete_time_ = 0; // 电池充电完成的最后时间点
+        static uint32_t last_start_charging_flag = 0; //开始充电标志位
         uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
 
         is_charging_ = gpio_get_level(charging_pin_) == 0;
@@ -76,17 +77,30 @@ private:
             }
         }
 
+        //开始充电提醒
+        if(is_charging_ && (last_start_charging_flag == 0)){
+            last_start_charging_flag = 1;
+            app.PlaySound(Lang::Sounds::OGG_1_11_KAISHICHONDIAN);
+        }
+
+        //充电器拔出
+        if(!is_charging_){
+            last_start_charging_flag = 0;
+            // app.PlaySound(Lang::Sounds::OGG_1_10_CHONDIANWANCHENG);
+        }
+
         //充电完成提示
         if(is_charging_complete_) {
             ESP_LOGI("PowerManager", "充电完成");
             if (current_time - last_charging_complete_time_ >= CHARGING_COMPLETE_ALARM_INTERVAL_MS * 1000) {
                 last_charging_complete_time_ = current_time;
-                //循环播放提示音
-                for (int i = 0; i < 6; i++) {
-                    app.PlaySound(Lang::Sounds::OGG_VIBRATION);
-                    //延时1秒
-                    vTaskDelay(pdMS_TO_TICKS(1500));
-                }
+                // //循环播放提示音
+                // for (int i = 0; i < 2; i++) {
+                    
+                //     //延时1秒
+                //     vTaskDelay(pdMS_TO_TICKS(3000));
+                // }
+                app.PlaySound(Lang::Sounds::OGG_1_10_CHONDIANWANCHENG);
             }
         }
     }

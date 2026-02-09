@@ -293,12 +293,12 @@ private:
                 return; // 如果距离上次触发时间小于间隔，直接返回
             }
             last_touch_time_ = current_time;
-            // //发送传感器消息-begin
-            // app.SendSensorData("touch-hand", "stop", "The ");
+            //发送传感器消息-begin
+            app.SendSensorData("touch-hand", "stop", "The ");
     
-            // vTaskDelay(pdMS_TO_TICKS(100));
-            // app.SendSensorData("touch-hand", "start", "");
-            //发送传感器消息-end
+            vTaskDelay(pdMS_TO_TICKS(100));
+            app.SendSensorData("touch-hand", "start", "");
+            // 发送传感器消息-end
 
             
         });

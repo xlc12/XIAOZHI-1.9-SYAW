@@ -534,7 +534,7 @@ void Application::Start() {
         display->ShowNotification(message.c_str());
         display->SetChatMessage("system", "");
         // Play the success sound to indicate the device is ready
-        audio_service_.PlaySound(Lang::Sounds::OGG_1_2_BANDINCHENGGON);
+        audio_service_.PlaySound(Lang::Sounds::OGG_1_9_ZHUNBEIJIUXU);
     }
 
     // Print heap stats
