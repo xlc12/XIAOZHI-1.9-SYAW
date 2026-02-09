@@ -53,6 +53,7 @@ AtUart::~AtUart() {
 }
 
 void AtUart::Initialize() {
+    ESP_LOGE(TAG, "4G模块666666666666666666");
     if (initialized_) {
         return;
     }
