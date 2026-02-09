@@ -41,6 +41,9 @@
 
 #include <esp_lcd_gc9a01.h>
 
+#include <stdio.h>
+#include "esp_system.h"
+#include "esp_mac.h"
 
 #if defined(LCD_TYPE_ILI9341_SERIAL)
 #include "esp_lcd_ili9341.h"
@@ -516,6 +519,11 @@ public:
         #endif
 
         InitializePowerManager();
+
+        //打印wifi mac地址
+        uint8_t mac[6];
+        ESP_ERROR_CHECK(esp_read_mac(mac, ESP_MAC_WIFI_STA));
+        ESP_LOGE(TAG, "WiFi MAC Address: %02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
        
 
 
