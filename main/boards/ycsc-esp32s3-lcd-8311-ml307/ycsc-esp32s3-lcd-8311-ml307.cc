@@ -310,7 +310,7 @@ private:
     
 
         //左按钮。
-        left_button_.OnClick([this]() {
+        boot_button_.OnClick([this]() {
             auto& app = Application::GetInstance();
             if (GetNetworkType() == NetworkType::WIFI) {
                 if (app.GetDeviceState() == kDeviceStateStarting && !WifiStation::GetInstance().IsConnected()) {
@@ -408,7 +408,7 @@ private:
         #endif
 
         //切换网络模式
-        left_button_.OnLongPress([this]() {
+        boot_button_.OnLongPress([this]() {
             ESP_LOGI(TAG, "66666666666666  left_button_  OnMultipleClick 7 times");
             SwitchNetworkType();
            
@@ -504,10 +504,10 @@ public:
         InitializeButtons();
 
 
-        InitializeI2cBusMpu6050();
-        da218e_ = new Da218e(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
+        // InitializeI2cBusMpu6050();
+        // da218e_ = new Da218e(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
 
-        gsensor_action_ = new GsensorAction(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
+        // gsensor_action_ = new GsensorAction(i2c_bus_da218e_, DA218E_DEFAULT_ADDR);
 
         // play_controller = new Play_Controller();
 
