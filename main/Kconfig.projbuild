@@ -70,6 +70,9 @@ choice BOARD_TYPE
     config BOARD_TYPE_YCSC_ESP_S3_LCD_8311_ML307
         bool "4G网络YCSC-ESP-S3-LCD-8311-ML307"
         depends on IDF_TARGET_ESP32S3
+    config BOARD_TYPE_YCSC_ESP_C3_LCD_8311
+        bool "YCSC-ESP-C3-LCD-8311"
+        depends on IDF_TARGET_ESP32C3
     config BOARD_TYPE_BREAD_COMPACT_WIFI_LCD
         bool "面包板新版接线（WiFi）+ LCD"
         depends on IDF_TARGET_ESP32S3
