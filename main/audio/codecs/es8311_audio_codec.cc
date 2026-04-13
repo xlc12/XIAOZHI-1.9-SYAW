@@ -164,8 +164,8 @@ void Es8311AudioCodec::EnableInput(bool enable) {
     if (enable == input_enabled_) {
         return;
     }
-    ESP_LOGI(TAG, "Input %s", enable ? "enabled" : "disabled");
-    AudioCodec::EnableInput(enable);
+    // ESP_LOGI(TAG, "Input %s", enable ? "enabled" : "disabled");
+    AudioCodec::EnableInput(true);
     UpdateDeviceState();
 }
 
@@ -174,8 +174,8 @@ void Es8311AudioCodec::EnableOutput(bool enable) {
     if (enable == output_enabled_) {
         return;
     }
-    ESP_LOGI(TAG, "Output %s", enable ? "enabled" : "disabled");
-    AudioCodec::EnableOutput(enable);
+    // ESP_LOGI(TAG, "Output %s", enable ? "enabled" : "disabled");
+    AudioCodec::EnableOutput(true);
     UpdateDeviceState();
 }
 

@@ -2,6 +2,7 @@
 #define _BOARD_CONFIG_H_
 
 #include <driver/gpio.h>
+#include <driver/uart.h>
 
 #define AUDIO_INPUT_SAMPLE_RATE  24000
 #define AUDIO_OUTPUT_SAMPLE_RATE 24000
@@ -19,6 +20,14 @@
 
 #define BUILTIN_LED_GPIO        GPIO_NUM_9
 #define BOOT_BUTTON_GPIO        GPIO_NUM_10
+
+
+// 串口2定义
+#define UART_2_PORT UART_NUM_0
+#define TX2_PIN GPIO_NUM_21
+#define RX2_PIN GPIO_NUM_20
+#define U_2_BAUD_RATE 115200
+#define U_2_BUF_SIZE 1024
 
 
 #endif // _BOARD_CONFIG_H_
